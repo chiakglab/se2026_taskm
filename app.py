@@ -1,8 +1,20 @@
 import sqlite3
+from datetime import date
 from flask import Flask, render_template, request, redirect
 
 app = Flask(__name__)
 DB = "data.db"
+
+
+# ------------------------------
+# ルート 0：トップページ
+# GET /
+# /tasks にリダイレクトするだけ
+# / 専用の画面は作らない、直接一覧に飛ばす
+# ------------------------------
+@app.route("/")
+def home():
+    return redirect("/tasks")
 
 
 # ------------------------------
@@ -39,17 +51,27 @@ def init_db():
 # GET /tasks
 # tasks と staff を JOIN して、担当者の名前も一緒に表示する
 # 締切が近い順に並べる
+# 締切が今日より前、または2日以内なら「urgent」フラグを付ける
 # ------------------------------
 @app.route("/tasks")
 def show_tasks():
     conn = sqlite3.connect(DB)
-    tasks = conn.execute("""
+    rows = conn.execute("""
         SELECT tasks.id, tasks.title, staff.name, tasks.deadline, tasks.status
         FROM tasks
         JOIN staff ON tasks.assigned_to = staff.id
         ORDER BY tasks.deadline
     """).fetchall()
     conn.close()
+
+    today = date.today()
+    tasks = []
+    for row in rows:
+        task_id, title, staff_name, deadline, status = row
+        days_left = (date.fromisoformat(deadline) - today).days
+        urgent = status != "完了" and days_left <= 2
+        tasks.append((task_id, title, staff_name, deadline, status, urgent))
+
     return render_template("tasks.html", tasks=tasks)
 
 
@@ -146,17 +168,7 @@ def delete_task(task_id):
     conn.close()
     return redirect("/tasks")
 
-# ------------------------------
-# ルート 0：トップページ
-# GET /
-# /tasks にリダイレクトするだけ
-# / 専用の画面は作らない、直接一覧に飛ばす
-# ------------------------------
-@app.route("/")
-def home():
-    return redirect("/tasks")
-
 
 if __name__ == "__main__":
     init_db()
-    app.run(host="0.0.0.0", port=5555, debug=True)
+    app.run(debug=True)
