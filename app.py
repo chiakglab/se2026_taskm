@@ -146,6 +146,16 @@ def delete_task(task_id):
     conn.close()
     return redirect("/tasks")
 
+# ------------------------------
+# ルート 0：トップページ
+# GET /
+# /tasks にリダイレクトするだけ
+# / 専用の画面は作らない、直接一覧に飛ばす
+# ------------------------------
+@app.route("/")
+def home():
+    return redirect("/tasks")
+
 
 if __name__ == "__main__":
     init_db()
