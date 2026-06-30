@@ -170,33 +170,22 @@ def delete_task(task_id):
 
 
 # ------------------------------
-# ルート 6：スタッフ一覧 (Read)
-# GET /staff
+# ルート 6：スタッフ一覧 + 追加
+# GET  /staff → 一覧とフォームを同じ画面に表示する
+# POST /staff → フォームの内容をDBに保存して、同じ画面に戻る
 # ------------------------------
-@app.route("/staff")
+@app.route("/staff", methods=["GET", "POST"])
 def show_staff():
     conn = sqlite3.connect(DB)
+
+    if request.method == "POST":
+        name = request.form["name"]
+        conn.execute("INSERT INTO staff (name) VALUES (?)", (name,))
+        conn.commit()
+
     staff_list = conn.execute("SELECT id, name FROM staff").fetchall()
     conn.close()
     return render_template("staff.html", staff_list=staff_list)
-
-
-# ------------------------------
-# ルート 7：スタッフ作成 (Create)
-# GET  /staff/new → 空のフォームを表示する
-# POST /staff/new → フォームの内容をDBに保存する
-# ------------------------------
-@app.route("/staff/new", methods=["GET", "POST"])
-def new_staff():
-    if request.method == "POST":
-        name = request.form["name"]
-        conn = sqlite3.connect(DB)
-        conn.execute("INSERT INTO staff (name) VALUES (?)", (name,))
-        conn.commit()
-        conn.close()
-        return redirect("/staff")
-
-    return render_template("staff_form.html")
 
 
 if __name__ == "__main__":
