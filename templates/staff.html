@@ -19,10 +19,16 @@
     <table>
         <tr>
             <th>名前</th>
+            <th></th>
         </tr>
         {% for s in staff_list %}
         <tr>
             <td>{{ s[1] }}</td>
+            <td>
+                <form action="/staff/{{ s[0] }}/deactivate" method="POST" style="display:inline">
+                    <button type="submit">退職</button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </table>
