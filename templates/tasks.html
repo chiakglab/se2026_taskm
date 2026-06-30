@@ -19,7 +19,7 @@
             <th></th>
         </tr>
         {% for task in tasks %}
-        <tr>
+        <tr {% if task[5] %}class="urgent"{% endif %}>
             <td>{{ task[1] }}</td>
             <td>{{ task[2] }}</td>
             <td>{{ task[3] }}</td>
