@@ -29,7 +29,8 @@ def init_db():
     conn.execute("""
         CREATE TABLE IF NOT EXISTS staff (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL
+            name TEXT NOT NULL,
+            active INTEGER NOT NULL DEFAULT 1
         )
     """)
     conn.execute("""
@@ -96,7 +97,7 @@ def new_task():
         conn.close()
         return redirect("/tasks")
 
-    staff_list = conn.execute("SELECT id, name FROM staff").fetchall()
+    staff_list = conn.execute("SELECT id, name FROM staff WHERE active = 1").fetchall()
     conn.close()
     return render_template("form.html", task=None, staff_list=staff_list)
 
@@ -125,7 +126,9 @@ def edit_task(task_id):
     task = conn.execute(
         "SELECT id, title, assigned_to, deadline FROM tasks WHERE id = ?", (task_id,)
     ).fetchone()
-    staff_list = conn.execute("SELECT id, name FROM staff").fetchall()
+    staff_list = conn.execute(
+        "SELECT id, name FROM staff WHERE active = 1 OR id = ?", (task[2],)
+    ).fetchall()
     conn.close()
     return render_template("form.html", task=task, staff_list=staff_list)
 
@@ -171,7 +174,7 @@ def delete_task(task_id):
 
 # ------------------------------
 # ルート 6：スタッフ一覧 + 追加
-# GET  /staff → 一覧とフォームを同じ画面に表示する
+# GET  /staff → 一覧とフォームを同じ画面に表示する（在籍中のみ）
 # POST /staff → フォームの内容をDBに保存して、同じ画面に戻る
 # ------------------------------
 @app.route("/staff", methods=["GET", "POST"])
@@ -183,9 +186,26 @@ def show_staff():
         conn.execute("INSERT INTO staff (name) VALUES (?)", (name,))
         conn.commit()
 
-    staff_list = conn.execute("SELECT id, name FROM staff").fetchall()
+    staff_list = conn.execute(
+        "SELECT id, name FROM staff WHERE active = 1"
+    ).fetchall()
     conn.close()
     return render_template("staff.html", staff_list=staff_list)
+
+
+# ------------------------------
+# ルート 7：スタッフを退職扱いにする（ソフト削除）
+# POST /staff/<id>/deactivate
+# データは消さない、active を 0 にするだけ
+# 過去のタスクには、そのまま名前が残る
+# ------------------------------
+@app.route("/staff/<int:staff_id>/deactivate", methods=["POST"])
+def deactivate_staff(staff_id):
+    conn = sqlite3.connect(DB)
+    conn.execute("UPDATE staff SET active = 0 WHERE id = ?", (staff_id,))
+    conn.commit()
+    conn.close()
+    return redirect("/staff")
 
 
 if __name__ == "__main__":
