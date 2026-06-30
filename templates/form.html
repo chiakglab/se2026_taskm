@@ -1,1 +1,33 @@
 
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if task %}編集{% else %}新規追加{% endif %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>{% if task %}タスクを編集{% else %}新しいタスクを追加{% endif %}</h1>
+
+    <form method="POST">
+        <label>タスク名</label>
+        <input type="text" name="title" value="{{ task[1] if task else '' }}" required>
+
+        <label>担当者</label>
+        <select name="assigned_to" required>
+            {% for s in staff_list %}
+            <option value="{{ s[0] }}" {% if task and task[2] == s[0] %}selected{% endif %}>
+                {{ s[1] }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <label>締切</label>
+        <input type="date" name="deadline" value="{{ task[3] if task else '' }}" required>
+
+        <button type="submit">保存</button>
+    </form>
+
+    <a href="/tasks">← 一覧に戻る</a>
+</body>
+</html>
