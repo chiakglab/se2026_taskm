@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>スタッフ管理</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>スタッフ管理</h1>
+
+    <a href="/tasks">← タスク一覧に戻る</a>
+
+    <form method="POST">
+        <label>名前</label>
+        <input type="text" name="name" required>
+        <button type="submit">追加</button>
+    </form>
+
+    <table>
+        <tr>
+            <th>名前</th>
+        </tr>
+        {% for s in staff_list %}
+        <tr>
+            <td>{{ s[1] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
