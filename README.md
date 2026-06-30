@@ -13,11 +13,13 @@
 
 ```
 pip install -r requirements.txt
-python seed.py
 python app.py
 ```
 
 ブラウザで `localhost:5000` を開く（自動で `/tasks` に移動する）。
+
+最初はスタッフが0人なので、まず「スタッフ管理」からスタッフを追加してから、
+タスクを作成すること。
 
 他の人のPC・スマホから見たい場合は、同じWi-Fiにつないだ上で、
 自分のPCのIPアドレスを調べて `http://(IPアドレス):5000` を開く。
@@ -26,10 +28,10 @@ python app.py
 
 | スライドの言葉 | このコードのどこ |
 |---|---|
-| ルート | `app.py` の `@app.route(...)`、全部で6個 |
-| テンプレート | `templates/tasks.html`, `templates/form.html` |
+| ルート | `app.py` の `@app.route(...)`、全部で8個 |
+| テンプレート | `templates/` フォルダの中の全ファイル |
 | データベース | `data.db`（起動すると自動で作られる） |
-| CRUD | `show_tasks`（読取）, `new_task`（作成）, `edit_task`（更新）, `delete_task`（削除） |
+| CRUD | タスクは4操作すべて対応。スタッフは作成・読取のみ（編集・削除は省略） |
 | GET / POST | `methods=["GET", "POST"]` の部分。フォーム表示はGET、保存はPOST |
 | フォームからDBまでの流れ | `new_task` 関数の中、POSTのとき |
 | static | `static/style.css` |
@@ -44,11 +46,10 @@ python app.py
 一覧を表示するとき、2つのテーブルをJOINして、
 担当者の名前を一緒に表示している（`show_tasks` 関数を参照）。
 
-## seed.py について
+## スタッフ管理について
 
-スタッフを登録する画面は作っていない。
-代わりに `seed.py` を1回実行して、5人分のスタッフを最初に登録する。
-これは開発・デモ用の仮データで、本番には含めない。
+スタッフの編集・削除は省略している（必要なら items.html / form.html の
+編集・削除パターンをそのままコピーすれば追加できる）。
 
 ## 自分たちのアプリに変える時
 
